@@ -91,7 +91,7 @@ Use this JSON shape for `scripts/visio_draw_from_plan.ps1`.
 - `fontSize`: Font size in points.
 - `bold`: Optional boolean for whole-shape bold text. Use for emphasized labels visible in the reference, especially Chinese flowchart nodes.
 - `allowOverlap`: Optional boolean. Use only when overlap is intentionally part of the reference design, such as an overlaid caption, stacked image collage, watermark, or label printed directly on an image.
-- `allowedOverlaps`: Optional array of shape IDs allowed to overlap this shape. Use this instead of broad `allowOverlap` when only one known image/text pair should overlap.
+- `allowedOverlaps`: Optional array of shape IDs or connector IDs allowed to overlap this shape. Use this instead of broad `allowOverlap` when only one known image/text pair or intentional connector pass-through should overlap.
 - `italic`: Optional boolean for whole-shape italic text.
 - `mathText`: Optional boolean. Use `true` when the label is a formula or formula-like variable expression; preserve italic variables and subscript/superscript formatting where possible.
 - `richText`: Optional array for span-level formatting inside one Visio text box. When present, the script concatenates span `text` values and applies character-level `fontFamily`, `fontSize`, `italic`, `subscript`, and `superscript` formatting with Visio `Characters.CharProps`.
@@ -106,6 +106,7 @@ Before running Visio automation for a non-trivial screenshot-derived plan, run `
 - text or label boxes overlapping image boxes;
 - image boxes overlapping each other;
 - shapes extending beyond the page boundary;
+- connector paths crossing unrelated node bodies or labels;
 - labels that sit inside an image's visual area when the reference uses external captions.
 
 Plan labels as anchored objects with their own clear area unless the reference intentionally overlays text. For image lists, place each image, its color chip, and its label in a small row or column layout with reserved spacing. Do not let captions drift into neighboring images when the source figure is dense or the page is scaled down.

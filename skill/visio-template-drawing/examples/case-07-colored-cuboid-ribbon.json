@@ -1,0 +1,24 @@
+{
+  "page": {
+    "name": "Colored Cuboid Ribbon",
+    "width": 6,
+    "height": 4
+  },
+  "shapes": [
+    { "id": "bar1", "kind": "cuboid", "x": 2.5, "y": 2.7, "width": 1.8, "height": 0.45, "fill": "#91CAD6", "line": "#000000", "allowedOverlaps": ["ribbon_curve"] },
+    { "id": "bar2", "kind": "cuboid", "x": 2.5, "y": 1.4, "width": 1.8, "height": 0.45, "fill": "#FFE8A4", "line": "#000000" },
+    { "id": "source", "kind": "ellipse", "x": 0.8, "y": 2.0, "width": 0.35, "height": 0.35, "fill": "#FFFFFF", "line": "#000000" },
+    { "id": "target", "kind": "ellipse", "x": 4.8, "y": 2.0, "width": 0.35, "height": 0.35, "fill": "#FFFFFF", "line": "#000000" }
+  ],
+  "connectors": [
+    {
+      "id": "ribbon_curve",
+      "from": "source",
+      "to": "target",
+      "kind": "ribbon",
+      "points": [0.95, 2.06, 1.7, 3.0, 3.5, 3.0, 4.65, 2.08, 4.65, 1.92, 3.5, 2.78, 1.7, 2.78, 0.95, 1.94],
+      "fill": "#000000",
+      "line": "#000000"
+    }
+  ]
+}
