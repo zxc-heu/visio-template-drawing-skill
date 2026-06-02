@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visio Template Drawing"
+  short_description: "Create editable Visio drawings from templates"
+  default_prompt: "Create an editable Visio .vsdx from a PNG reference, text instructions, and a Visio template."

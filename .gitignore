@@ -1,0 +1,21 @@
+# Workspace-only material.
+/outputs/
+/examples/
+/示例/
+/scripts/
+/conversation-summary.md
+/workflow.md
+/github-preflight-audit.md
+/csdn-visio-template-drawing.md
+/csdn-visio-template-drawing - 副本.md
+/AGENTS.md
+
+# Generated caches and temporary files.
+__pycache__/
+*.pyc
+*.tmp
+*.log
+
+# Local/editor noise.
+.DS_Store
+Thumbs.db
