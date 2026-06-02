@@ -4,6 +4,16 @@ This repository contains a Codex skill for creating editable Microsoft Visio dra
 
 The skill is designed to automate real Visio drawing work through Microsoft Visio COM on Windows. It should create editable Visio shapes, connectors, and text instead of using a pasted screenshot as the final diagram.
 
+## Examples
+
+| Reference | Codex-generated editable Visio output |
+| --- | --- |
+| <img src="docs/assets/examples/example-01-reference.png" width="360" alt="Example 1 reference diagram"> | <img src="docs/assets/examples/example-01-codex.png" width="360" alt="Example 1 Codex-generated Visio output"> |
+| <img src="docs/assets/examples/example-02-reference.png" width="300" alt="Example 2 reference diagram"> | <img src="docs/assets/examples/example-02-codex.png" width="300" alt="Example 2 Codex-generated Visio output"> |
+| <img src="docs/assets/examples/example-03-reference.png" width="360" alt="Example 3 reference diagram"> | <img src="docs/assets/examples/example-03-codex.png" width="360" alt="Example 3 Codex-generated Visio output"> |
+| <img src="docs/assets/examples/example-04-reference.png" width="330" alt="Example 4 reference diagram"> | <img src="docs/assets/examples/example-04-codex.png" width="330" alt="Example 4 Codex-generated Visio output"> |
+| <img src="docs/assets/examples/example-05-reference.png" width="220" alt="Example 5 reference diagram"> | <img src="docs/assets/examples/example-05-codex.png" width="220" alt="Example 5 Codex-generated Visio output"> |
+
 ## What It Does
 
 - Converts diagram descriptions or reference images into editable `.vsdx` files.
