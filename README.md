@@ -79,4 +79,4 @@ This repository intentionally keeps local test outputs, one-off debugging script
 
 ## License
 
-No open-source license has been selected yet. Choose a license before public release if you want others to reuse or modify the project.
+MIT. See `LICENSE`.
