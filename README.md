@@ -4,6 +4,10 @@ This repository contains a Codex skill for creating editable Microsoft Visio dra
 
 The skill is designed to automate real Visio drawing work through Microsoft Visio COM on Windows. It should create editable Visio shapes, connectors, and text instead of using a pasted screenshot as the final diagram.
 
+<p align="center">
+  <img src="docs/assets/visio-template-drawing-skill-flow.png" width="760" alt="Visio template drawing skill workflow illustration">
+</p>
+
 ## Examples
 
 | Reference | Codex-generated editable Visio output |
