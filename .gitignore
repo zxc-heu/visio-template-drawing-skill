@@ -19,3 +19,6 @@ __pycache__/
 # Local/editor noise.
 .DS_Store
 Thumbs.db
+
+# Private managed Visio run registries and diagnostic artifacts.
+.visio-runs/

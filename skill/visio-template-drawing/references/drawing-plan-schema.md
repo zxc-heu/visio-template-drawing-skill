@@ -167,3 +167,9 @@ When the reference contains curves or irregular outlines that a skilled Visio us
 For plan-only batch rendering, add a note in the final report when a curve has been rendered with `curve`, `polygon`, or `ribbon` fallback instead of the native UI command.
 
 Keep plans small and explicit. For complex figures, generate multiple pages or group the diagram into phases before drawing.
+
+## Multi-page plans and plan-based assembly
+
+A single-page plan remains unchanged. For an atlas, wrap complete page plans in `{"pages": [pagePlan1, pagePlan2, ...]}`. Each member has its own `page`, `shapes`, `connectors` and optional `defaults`. Page names must be unique; shape IDs are local to their page. See `examples/case-09-eight-pages.json`.
+
+Alternatively, call the PowerShell script with `-PlanJson @('page1.json', 'page2.json')` from a PowerShell session. Each file may itself contain a `pages` array. This redraws the plans directly into one document; it does not import arbitrary existing VSDX pages or use the system clipboard. Cross-page connectors are not implemented. Templates are optional; when supplied their existing pages are preserved, and matching planned pages are reused.

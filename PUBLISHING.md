@@ -32,15 +32,13 @@ Use this checklist before pushing the skill to GitHub.
 5. Run `git status` and verify only public files are staged.
 6. Choose a license if the repository will be public and reusable.
 
-## GitHub Push
+## Updating an Existing Repository
 
-After creating an empty GitHub repository:
+1. Read the live remote branch (`git ls-remote origin refs/heads/main`) and compare with the local commit. Do not rely on a cached `origin/main`.
+2. Preserve unrelated working-tree changes and untracked files. Review `git diff` and stage named public files only; never use blanket `git add .` for maintenance releases.
+3. Include updated lifecycle documentation and generic test scripts/examples, but exclude run registries, logs, diagnostics, screenshots, private inputs, local reports and generated atlases.
+4. Run skill validation, both language syntax checks, all bundled layout examples, and the relevant live Visio acceptance suites. Record human concurrency checks separately. Inspect the staged content for private paths and unexpected assets.
+5. Commit only the reviewed diff. Fetch/recheck the remote immediately before pushing to the existing correct branch. If it moved, integrate safely; do not overwrite existing work or force-push.
+6. Verify the actual remote commit after the push. A transport failure is not a successful release.
 
-```powershell
-git init
-git add .
-git commit -m "Initial Visio template drawing skill"
-git branch -M main
-git remote add origin https://github.com/<github-user>/<repo-name>.git
-git push -u origin main
-```
+Connection overrides for a blocked transport should be scoped to the current command and preserve the repository's configured origin. Keep local installation backup/diff records outside the public package. Synchronize only reviewed files, compare hashes, and preserve installation-only files.

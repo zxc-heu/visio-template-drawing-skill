@@ -114,14 +114,7 @@ def allows_overlap(shape, other_id):
     return other_id in allowed or "*" in allowed
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Preflight drawing plan layout for obvious collisions.")
-    parser.add_argument("plan_json")
-    parser.add_argument("--min-overlap-ratio", type=float, default=0.05)
-    args = parser.parse_args()
-
-    plan_path = Path(args.plan_json)
-    plan = json.loads(plan_path.read_text(encoding="utf-8-sig"))
+def validate_page(plan, min_overlap_ratio=0.05):
     page = plan.get("page", {})
     page_w = float(page.get("width", 0) or 0)
     page_h = float(page.get("height", 0) or 0)
@@ -152,7 +145,7 @@ def main():
                 continue
             small = min(area(boxes[aid]), area(boxes[bid]))
             ratio = ia / small if small else 0
-            if ratio < args.min_overlap_ratio:
+            if ratio < min_overlap_ratio:
                 continue
 
             if (is_text(a) and is_image(b)) or (is_text(b) and is_image(a)):
@@ -200,6 +193,29 @@ def main():
                     })
                     break
 
+    return findings
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Preflight drawing plan layout for obvious collisions.")
+    parser.add_argument("plan_json")
+    parser.add_argument("--min-overlap-ratio", type=float, default=0.05)
+    args = parser.parse_args()
+
+    plan_path = Path(args.plan_json)
+    plan = json.loads(plan_path.read_text(encoding="utf-8-sig"))
+    plans = plan.get("pages", [plan])
+    if not isinstance(plans, list) or not plans:
+        raise ValueError("pages must be a non-empty array of page plans")
+    findings = []
+    names = set()
+    for index, page_plan in enumerate(plans, 1):
+        name = page_plan.get("page", {}).get("name", f"Page {index}")
+        if name in names:
+            findings.append({"severity": "error", "type": "duplicate-page-name", "page": name})
+        names.add(name)
+        for finding in validate_page(page_plan, args.min_overlap_ratio):
+            findings.append(dict(finding, page=name))
     print(json.dumps({"plan": str(plan_path), "findings": findings}, ensure_ascii=False, indent=2))
     if any(item["severity"] == "error" for item in findings):
         raise SystemExit(2)

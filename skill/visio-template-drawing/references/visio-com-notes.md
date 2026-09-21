@@ -4,15 +4,15 @@ Visio COM uses page units in inches for most drawing calls. `DrawRectangle(left,
 
 ## Visibility
 
-Set `Visio.Application.Visible = $true` when the user wants to watch the process. Visible automation is slower but easier to trust and debug.
+Default to a new `Visio.InvisibleApp` through the managed entry points. `-Visible` requests process visibility; `-KeepOpen` independently retains the final window only on success. Read [session-lifecycle.md](session-lifecycle.md) for ownership, cancellation, cleanup and recovery. Never obtain an arbitrary active instance.
 
 ## Templates and Masters
 
-Open the template with `Documents.Open()`, then save to a new output path with `SaveAs()` so the original template is not modified. If a shape plan specifies a `master`, search open documents and stencils for a matching master name. If no master is found, fall back to primitives and mention the fallback.
+Open the template as a copy with `Documents.OpenEx` (`visOpenCopy`, macros disabled, no workspace restore), then save to a new output path with `SaveAs()`. Register the document immediately in the owned session. If a shape plan specifies a `master`, search open documents and stencils for a matching master name. If no master is found, fall back to primitives and mention the fallback.
 
 Prefer masters and stencil shapes the way a human Visio user would use the left-side Shapes pane. Reuse shapes from a user-provided `.vsdx` before drawing primitives. Use primitives as a practical fallback for screenshots or common boxes/arrows. Avoid constructing rectangles, frames, or icon-like shapes from many independent line segments unless the target is truly a custom line drawing.
 
-Open stencils hidden and read-only with `Documents.OpenEx(path, 66)` when possible. This avoids visible stencil windows and save prompts. Prefer `NameU` for master lookup, because it is more stable than localized display names.
+Open stencils hidden and read-only with `Documents.OpenEx(path, 194)` (hidden + read-only + macros disabled) when possible. This avoids visible stencil windows and save prompts. Prefer `NameU` for master lookup, because it is more stable than localized display names.
 
 If the target shape is not listed in `master-catalog.md`, search installed Visio stencil files by query and preferred stencil regex before falling back. Use a small proof `.vsdx` for newly discovered masters, then record reusable findings in `master-catalog.md`.
 
@@ -56,11 +56,11 @@ For screenshot replication, spline connectors are not always visually stable eno
 
 Visio's ribbon Tools menu "Freeform/任意多边形(F)" is a UI command. It can be selected through the Visio command system, but the deterministic COM page methods used for batch rendering (`DrawPolyline`, `DrawSpline`, `DrawBezier`) create path shapes and are not proof that the native UI tool was used. `DrawPolyline` is documented as equivalent to `DrawSpline` with zero tolerance and the abrupt flag, so it must not be treated as the native freeform tool.
 
-If the reference contains freehand-looking curves, irregular curved outlines, thick curved bands, or shapes that a human Visio user would naturally draw from the Tools menu, treat the native "任意多边形(F)" UI tool as the preferred strategy. If exact use of that tool matters, use visible interactive Visio operation and state that it is interactive/manual.
+In background mode, use editable COM curves or polygons. If exact use of the native "任意多边形(F)" tool matters, explain the focus/input requirements and obtain explicit authorization for interactive work before using it.
 
 If batch rendering must proceed without reliable UI-tool point entry, use a closed-polyline, spline, or ribbon fallback and explicitly report the fallback. Do not silently substitute COM geometry while claiming the Visio UI tool was used.
 
-The broader principle is to behave like a skilled Visio user: use the UI tool palette and left-side Shapes pane first, then script those actions through COM where practical. Only drop to low-level custom geometry after stencil/master/UI-tool options have been considered.
+Preserve Visio semantics: choose stencil masters and native editable shapes through COM first, and use custom geometry where appropriate. Background operation must not drive UI tool palettes.
 
 ## Text and Fonts
 
@@ -90,7 +90,7 @@ Collision repair should preserve the source line style when possible. If the sou
 
 ## Export
 
-Use the active page's `Export()` method for PNG previews. Export is page-based, so activate or select the intended page first.
+Call `Export()` on the explicitly referenced `Document.Pages.ItemU(name)` or indexed page. No page activation, selection or clipboard is needed. The managed exporter closes its own read-only document and instance even after export failure.
 
 ## Reliability Rules
 

@@ -1,0 +1,38 @@
+{
+  "page": {
+    "name": "Flow",
+    "width": 8,
+    "height": 5
+  },
+  "shapes": [
+    {
+      "id": "source",
+      "kind": "rectangle",
+      "x": 2,
+      "y": 2.5,
+      "width": 2,
+      "height": 1,
+      "text": "输入 Input",
+      "fill": "#EAF3FF"
+    },
+    {
+      "id": "target",
+      "kind": "rectangle",
+      "x": 6,
+      "y": 2.5,
+      "width": 2,
+      "height": 1,
+      "text": "输出 Output",
+      "fill": "#DDEBD9"
+    }
+  ],
+  "connectors": [
+    {
+      "id": "link",
+      "from": "source",
+      "to": "target",
+      "kind": "dynamic",
+      "arrow": true
+    }
+  ]
+}
