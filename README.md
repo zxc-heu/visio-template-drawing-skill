@@ -1,46 +1,83 @@
-# Visio Template Drawing Skill
+# Visio 可编辑绘图技能
 
-用中文告诉 Codex 要画什么，或提供 PNG 参考图、Visio 模板，即可生成原生可编辑的 `.vsdx`：形状、文字和连接线都可以继续在 Microsoft Visio 中修改。
+本项目提供一个 Codex 技能，可根据 PNG 参考图、文字说明或已有 Visio 模板，生成可继续编辑的 Microsoft Visio 文件（`.vsdx`）。
 
-**默认后台绘制，完成后关闭本任务的 Visio 实例。** 绘图过程不使用鼠标、键盘或系统剪贴板；你可以继续操作其他软件。只有明确要求时，才显示绘制过程、保留最终窗口或导出 PNG。
+技能通过 Windows 上的 Microsoft Visio COM 接口完成绘图。输出包含原生形状、连接线和文字，可在 Visio 中逐项修改。
 
-[下载稳定版 v1.0.0](https://github.com/zxc-heu/visio-template-drawing-skill/releases/tag/v1.0.0) · [使用方式](#usage) · [安装](#installation) · [命令行示例](#powershell) · [常见问题](#faq)
+<p align="center">
+  <img src="docs/assets/visio-template-drawing-skill-flow.png" width="760" alt="Visio 绘图技能工作流程示意图">
+</p>
 
-<a name="usage"></a>
+## 绘图示例
 
-## 日常使用：直接用中文提出要求
+| 参考图 | Codex 生成的可编辑 Visio 图 |
+| --- | --- |
+| <img src="docs/assets/examples/example-01-reference.png" width="360" alt="示例一：参考图"> | <img src="docs/assets/examples/example-01-codex.png" width="360" alt="示例一：生成结果"> |
+| <img src="docs/assets/examples/example-02-reference.png" width="300" alt="示例二：参考图"> | <img src="docs/assets/examples/example-02-codex.png" width="300" alt="示例二：生成结果"> |
+| <img src="docs/assets/examples/example-03-reference.png" width="360" alt="示例三：参考图"> | <img src="docs/assets/examples/example-03-codex.png" width="360" alt="示例三：生成结果"> |
+| <img src="docs/assets/examples/example-04-reference.png" width="330" alt="示例四：参考图"> | <img src="docs/assets/examples/example-04-codex.png" width="330" alt="示例四：生成结果"> |
+| <img src="docs/assets/examples/example-05-reference.png" width="220" alt="示例五：参考图"> | <img src="docs/assets/examples/example-05-codex.png" width="220" alt="示例五：生成结果"> |
 
-安装技能后，把参考图交给 Codex，复制下面的指令并补充自己的要求即可。**你不需要先写 JSON，也不需要记住脚本参数。** Codex 会分析输入、准备绘图计划、运行脚本并检查结果。
+## 主要功能
+
+- 根据参考图或文字说明生成可编辑的 `.vsdx` 文件。
+- 默认使用独立、隐藏的 Visio 实例后台绘制，结束后关闭本任务文档并核验实例退出。
+- 分别控制“显示绘制过程”和“完成后保留最终窗口”。
+- 在同一文档中直接生成多页图册，避免依赖系统剪贴板。
+- 记录实例归属、原始错误、保存、导出和清理结果，并提供独立的取消与超时监护。
+- 优先使用 Visio 原生模具、母版、形状、连接线和可编辑文字。
+- 支持绘制前的布局检查，以及数学标签的字体、斜体、上下标等格式。
+- 仅在明确要求时导出 PNG 预览。
+
+## 运行环境
+
+- Windows，以及本机已安装的 Microsoft Visio。
+- Windows PowerShell 5.1：执行实际 COM 绘图任务，使用 STA 模式。
+- PowerShell 7：可用于启动技能脚本；绘图进程仍由脚本调用 Windows PowerShell 5.1。
+- Python 3：用于布局检查和参考图裁剪辅助脚本。
+- Pillow：仅在使用 `crop_reference_regions.py` 裁剪图片时需要。
+
+## 技能目录
+
+可安装的技能包位于：
+
+```text
+skill/visio-template-drawing/
+```
+
+主要文件和目录：
+
+| 路径 | 用途 |
+| --- | --- |
+| `skill/visio-template-drawing/SKILL.md` | 技能说明和执行规则 |
+| `skill/visio-template-drawing/agents/openai.yaml` | 技能界面配置 |
+| `skill/visio-template-drawing/scripts/` | 绘图、导出、检查和清理脚本 |
+| `skill/visio-template-drawing/references/` | 绘图方案格式、接口和恢复说明 |
+| `skill/visio-template-drawing/examples/` | 可运行的绘图方案示例 |
+
+## 安装
+
+将下面这段话发给 Codex，让它完成安装：
+
+> 请从 https://github.com/zxc-heu/visio-template-drawing-skill 安装 `skill/visio-template-drawing` 技能到当前 Codex 使用的技能目录。安装前检查是否已有同名技能；如有，先比较并保留本地修改，再同步需要更新的文件。完成后检查技能是否可识别，并告诉我是否需要重启 Codex。
+
+## 如何使用
+
+安装完成后，在 Codex 对话中说明要画什么，并明确使用 `visio-template-drawing` 技能。日常使用不需要自己编写绘图方案或输入 PowerShell 参数。
 
 ### 根据参考图绘制
 
-```text
-使用 visio-template-drawing，根据我上传的这张参考图生成可编辑 Visio。
-保留图中的文字、结构、箭头方向和主要配色，后台绘制，输出到桌面。
-```
+上传参考图后，可以这样说：
 
-### 根据文字绘制
+> 使用 visio-template-drawing 技能，把这张参考图重绘为可编辑的 Visio 文件。保留文字、连接关系和整体布局，保存到桌面，文件名为“流程图_codex.vsdx”。
 
-```text
-使用 visio-template-drawing，画一个“开始 → 输入数据 → 处理 → 输出结果 → 结束”的流程图。
-中文使用宋体，节点浅蓝色，连接线带箭头，保存为桌面的“处理流程.vsdx”。
-```
+### 根据文字说明绘制
 
-### 使用已有模板
-
-```text
-使用 visio-template-drawing，基于我提供的 Visio 模板绘制这张参考图。
-优先复用模板中的形状和母版，另存为新的 VSDX，不覆盖原模板。
-```
+> 使用 visio-template-drawing 技能，绘制“数据采集 → 数据清洗 → 模型计算 → 结果展示”的流程图。每一步使用独立形状，箭头连接，保存到桌面。
 
 ### 生成多页图册
 
-```text
-使用 visio-template-drawing，把这八张参考图绘制到同一个可编辑 VSDX 中。
-每张参考图独立一页，按图1至图8排序，后台绘制，完成后关闭本任务窗口。
-```
-
-多页图册是在同一文档中按计划逐页绘制；当前不提供任意已有 VSDX 文件的页面合并或跨页连接导入。
+> 使用 visio-template-drawing 技能，将这八张参考图分别绘制为八个页面，按上传顺序放入同一个可编辑的 Visio 文件，保存到桌面。
 
 ### 选择显示方式
 
@@ -54,173 +91,78 @@
 | 显示绘制过程，完成后保留最终图 | `-Visible -KeepOpen` | 显示过程，全部成功后保留最终文档 |
 | 另外导出每一页的 PNG 预览 | `-PreviewDirectory` | 按页导出 PNG；VSDX 仍是可编辑源文件 |
 
-即使选择保留窗口，任务失败时也会清理所属资源。可见模式可能改变焦点；希望持续操作其他软件时使用默认后台模式。绘图进行中不要手动编辑该任务正在生成的文档，成功交付后再编辑。
+表中的参数供手动调用脚本时参考；在对话里直接使用左侧的中文说法即可。`-KeepOpen` 仅在保存及所请求的导出全部成功后生效。
 
-在支持显式技能选择的 Codex 界面中，也可以选择或引用 `visio-template-drawing`；CLI / IDE 扩展支持 `/skills` 或 `$visio-template-drawing`。技能安装与发现机制见 [OpenAI 官方说明](https://learn.chatgpt.com/docs/build-skills)。
+### 输出位置
 
-<a name="installation"></a>
-
-## 安装
-
-### 环境要求
-
-- Windows，本机已安装 Microsoft Visio。本项目在 Visio 16 上完成了实测。
-- Windows PowerShell 5.1：实际 COM 绘图进程使用 STA 模式运行。也可以从 PowerShell 7 启动入口脚本。
-- Python 3：用于复杂图的布局预检；只有截图裁剪工具需要额外安装 Pillow。
-- 使用自然语言绘图时，需要能访问本机文件并执行本机脚本的 Codex 环境。本技能不会安装 Microsoft Visio。
-
-### 方式一：让 Codex 安装
-
-向 Codex 发送：
-
-```text
-使用 skill-installer，从以下仓库的 v1.0.0 版本安装技能：
-https://github.com/zxc-heu/visio-template-drawing-skill
-技能子目录：skill/visio-template-drawing
-请先检查现有安装；如有本地改动，保留并说明差异，不直接覆盖。
-```
-
-### 方式二：下载后手动安装
-
-1. 打开 [v1.0.0 发行版页面](https://github.com/zxc-heu/visio-template-drawing-skill/releases/tag/v1.0.0)，下载 **Source code (zip)** 并解压。
-2. 找到解压目录中的 `skill/visio-template-drawing/`。需要安装的是这个子目录，不是整个仓库。
-3. 将该目录放入你的 Codex 技能目录，确认最终路径直接包含 `visio-template-drawing/SKILL.md`，不要多套一层同名文件夹。
-
-当前 [官方本地发现路径](https://learn.chatgpt.com/docs/build-skills) 为用户级 `~/.agents/skills/`，或项目级 `.agents/skills/`。如果你的环境已经从其他位置识别并使用此技能，例如维护环境中的 `~/.codex/skills/`，请继续更新原位置，避免重复安装同名技能。未识别新安装时可重启 Codex 再检查。
-
-下面是**全新用户级安装**示例。在解压后的仓库根目录打开 PowerShell 执行；目标已存在时会停止，不覆盖旧文件。
-
-```powershell
-$source = (Resolve-Path '.\skill\visio-template-drawing').Path
-$skillsDir = Join-Path $env:USERPROFILE '.agents\skills'
-$destination = Join-Path $skillsDir 'visio-template-drawing'
-if (Test-Path -LiteralPath $destination) {
-  throw '目标技能已存在，请先备份并比较差异，再逐文件更新。'
-}
-New-Item -ItemType Directory -Path $skillsDir -Force | Out-Null
-Copy-Item -LiteralPath $source -Destination $destination -Recurse
-```
-
-已经安装过时，先备份现有技能、核对差异，再更新需要替换的文件；保留自己增加的文件。GitHub 发布新版本不会自动覆盖你的本机安装。
-
-<a name="powershell"></a>
-
-## 自己运行 PowerShell（可选）
-
-自然语言使用者可以跳过本节。以下命令从**解压后的仓库根目录**执行，不要求先把技能安装到某个固定位置。
-
-### 先生成一个简单示例
-
-```powershell
-$skillRoot = (Resolve-Path '.\skill\visio-template-drawing').Path
-$desktop = [Environment]::GetFolderPath('Desktop')
-$runName = 'visio-demo-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff')
-$output = Join-Path $desktop ($runName + '.vsdx')
-
-& "$skillRoot\scripts\visio_draw_from_plan.ps1" `
-  -PlanJson "$skillRoot\examples\case-08-background-flow.json" `
-  -OutputVsdx $output
-```
-
-输出是桌面的一个可编辑流程图，保存后实例自动退出。在最后一行末尾继续加 `-KeepOpen`，就会在成功后显示并保留最终文档；加 `-Visible` 则显示绘制过程。注意：PowerShell 的反引号用于续行，后面不要留空格。
-
-### 八页图册、可见模式和 PNG 预览
-
-以下示例接着上面的变量运行，使用不同文件名。
-
-```powershell
-& "$skillRoot\scripts\visio_draw_from_plan.ps1" `
-  -PlanJson "$skillRoot\examples\case-09-eight-pages.json" `
-  -OutputVsdx (Join-Path $desktop ($runName + '-atlas.vsdx')) `
-  -PreviewDirectory (Join-Path $desktop ($runName + '-previews')) `
-  -Visible -KeepOpen
-```
-
-这会显示绘图过程，保存八页图册、导出每页 PNG，并保留成功生成的最终窗口。需要后台执行时去掉 `-Visible`；不需要保留窗口时去掉 `-KeepOpen`。
-
-### 常用参数
-
-| 参数 | 用途 |
-| --- | --- |
-| `-PlanJson` | 必填，JSON 绘图计划；支持一个文件、PowerShell 路径数组或含 `pages` 的图册计划 |
-| `-OutputVsdx` | 必填，输出 VSDX 路径；不覆盖已有文件 |
-| `-TemplateVsdx` | 可选，打开模板副本后绘制，保留原模板 |
-| `-Visible` / `-KeepOpen` | 分别控制显示过程、成功后保留最终窗口 |
-| `-PreviewDirectory` | 可选，导出所有页面 PNG |
-| `-TimeoutSeconds` | 默认 300 秒；复杂图可按需延长，例如 `-TimeoutSeconds 600` |
-| `-RunDirectory` | 可选，指定新的日志目录；默认位于输出旁的 `.visio-runs/<id>` |
-
-直接运行脚本时，你需要自己准备 JSON 计划；它不会直接把 PNG 路径当成绘图计划。参考 [计划格式](skill/visio-template-drawing/references/drawing-plan-schema.md) 和 [公开示例](skill/visio-template-drawing/examples)。
-
-<a name="faq"></a>
+- 提供本地输入文件时：默认保存到输入文件旁，命名为 `原文件名_codex.vsdx`。
+- 直接粘贴图片且没有本地路径时：默认保存到桌面，使用描述性的文件名并以 `_codex.vsdx` 结尾。
+- 明确指定路径或文件名时：以你的要求为准。
+- 仅提供文字说明时：建议明确指定位置；当前技能没有为这种情况规定统一的默认目录。
 
 ## 常见问题
 
-**为什么没有出现 Visio 窗口？**
+### 需要先打开 Visio 吗？
 
-默认就是隐藏绘制。成功后打开输出 VSDX 查看；希望生成后自动显示，用 `-KeepOpen` 或在中文请求里明确说明。
+不需要。安装好 Visio 后，技能会创建属于当前任务的实例。你已打开的文档不作为后台任务的绘图目标。
 
-**图可以继续编辑吗？**
+### 绘图时还能使用其他软件、复制粘贴吗？
 
-主要内容由原生形状、文字和连接线组成，不是把整张参考图贴进 Visio。参考中的照片等栅格内容如需保留，仍可能以图片对象导入。
+默认后台流程不使用鼠标、键盘焦点或系统剪贴板。已完成真实的并行点击、输入和复制粘贴验收。如果某项操作必须借助前台界面，应在执行前说明。选择可见模式后，不能将后台模式的无干扰承诺直接套用到窗口显示过程。
 
-**输出文件默认保存在哪里？**
+### 输出是真的可编辑吗？
 
-通过技能绘图时，本地参考文件默认保存到参考文件旁，文件名为 `<原名>_codex.vsdx`；仅粘贴在对话里的图片默认输出到桌面。你指定的位置和文件名优先。直接运行脚本时由必填参数 `-OutputVsdx` 决定。
+是。绘图使用原生形状、文字和连接线，已验证对象编辑和连接粘附。PNG 仅用于预览；继续编辑应打开 `.vsdx` 文件。
 
-**任务失败后如何排查？**
+### 为什么默认没有 PNG？
 
-保留该任务的日志目录，查看 `result.json` 中的原始异常和清理结果。已经保存的最终文件不会因为后续导出失败而被删除；可能存在的 `failed-draft.vsdx` 是未完成现场，不代表任务成功。向维护者反馈前，检查日志中的私人路径和文档信息。
+默认交付可编辑的 `.vsdx`。需要预览时，在请求中加上“另外导出每一页的 PNG 预览”即可。
 
-**窗口关闭了，为什么还有日志和测试文件？**
+### 为什么使用 PowerShell 5.1，而不是直接使用 PowerShell 7 绘图？
 
-关闭任务所属窗口和进程，不等于删除磁盘文件。输出、日志和失败现场会保留供检查；确认不再需要后再按自己的备份策略清理。
+这是当前实现的兼容性选择。该工作流曾遇到 COM 数值参数绑定差异，完整的绘图、异常清理和中断恢复验收是在 Windows PowerShell 5.1 下完成的。PowerShell 7 可以启动入口脚本，但实际绘图进程固定使用 5.1。
 
-**强制中断后能自动恢复吗？**
+STA 指“单线程单元”，是一种 COM 线程模型；PowerShell 7 在 Windows 上同样支持 STA，因此 STA 本身不是选择 5.1 的理由。目前尚未完成由 PowerShell 7 直接执行全部 COM 绘图的兼容性验收。
 
-独立监护进程处理取消、超时及已确认归属的隐藏实例遗留。可见、明确保留或归属不明的实例不会被强行结束，以免影响用户文档。激活时尚未写入身份记录的极短窗口、整机断电和各种第三方插件卡死不能保证自动恢复。详见 [生命周期与恢复](skill/visio-template-drawing/references/session-lifecycle.md)。
+### 任务失败后，会不会留下空白窗口或丢失我原来的文档？
 
-**在哪里检查 COM 或已有文件的导出？**
+脚本按实例归属执行关闭和退出核验，处理绘图异常、保存失败、导出失败、取消及超时；已用受控的未保存文档验证隔离。若导出失败发生在保存成功之后，已保存的 VSDX 会保留。
 
-使用 [visio_probe.ps1](skill/visio-template-drawing/scripts/visio_probe.ps1) 检查 Visio，使用 [visio_export_preview.ps1](skill/visio-template-drawing/scripts/visio_export_preview.ps1) 导出已有文档的指定页。两个入口都使用同一套实例归属和清理流程。
+强制结束进程或断电可能使常规清理无法执行。恢复流程只处理归属已确认、任务已结束且从未显示过的遗留实例；曾显示的或归属不明的实例需要核查。不能批量结束所有 `VISIO.EXE`，也不能仅凭输出文件存在就认定清理成功。
 
-## 效果示例
+### 为什么提示输出文件已存在？
 
-| 参考图 | Codex 生成的可编辑 Visio 效果 |
-| --- | --- |
-| <img src="docs/assets/examples/example-01-reference.png" width="360" alt="Example 1 reference diagram"> | <img src="docs/assets/examples/example-01-codex.png" width="360" alt="Example 1 Codex-generated Visio output"> |
-| <img src="docs/assets/examples/example-02-reference.png" width="300" alt="Example 2 reference diagram"> | <img src="docs/assets/examples/example-02-codex.png" width="300" alt="Example 2 Codex-generated Visio output"> |
-| <img src="docs/assets/examples/example-03-reference.png" width="360" alt="Example 3 reference diagram"> | <img src="docs/assets/examples/example-03-codex.png" width="360" alt="Example 3 Codex-generated Visio output"> |
-| <img src="docs/assets/examples/example-04-reference.png" width="330" alt="Example 4 reference diagram"> | <img src="docs/assets/examples/example-04-codex.png" width="330" alt="Example 4 Codex-generated Visio output"> |
-| <img src="docs/assets/examples/example-05-reference.png" width="220" alt="Example 5 reference diagram"> | <img src="docs/assets/examples/example-05-codex.png" width="220" alt="Example 5 Codex-generated Visio output"> |
+入口脚本拒绝覆盖已有输出，以保护原文件。请改用新的文件名；如需修改已有图，应明确说明输入文件和另存位置。
 
-## v1.0.0：后台绘图与资源清理
+### 能把多个现有 VSDX 文件直接合并吗？
 
-- 单页绘图、按计划生成多页图册、导出和探测统一使用受管 Visio 实例。
-- 显示过程与结束后保留窗口分开控制；默认隐藏并自动关闭。
-- 增加结构化日志、原始异常记录、COM 释放、退出核验、取消、超时与严格限定的遗留恢复。
-- 已实测单页和八页图册连续两轮、原生编辑与粘连、保存/导出失败、已有未保存文档保护、显示/保留模式、文件锁、取消和强制中断。用户并行操作其他软件的点击、输入、复制粘贴也已实际验证。
-- 已验证环境：Visio 16、Windows PowerShell 5.1 STA；PowerShell 7.6 作为启动入口。未将所有机器和插件环境视为已验证。
+当前支持从多个绘图方案直接生成多页文档；尚不支持将任意已有 VSDX 的页面直接导入，也不支持跨页连接。应在开始任务前区分“按参考图生成图册”和“合并已有 Visio 文件”。
 
-完整更新说明见 [发行版](https://github.com/zxc-heu/visio-template-drawing-skill/releases/tag/v1.0.0)。
+## 验收测试
 
-## 开发与验证
+以下测试会创建本地测试文件。添加 `-IncludeVisible` 时，会主动打开受控的测试窗口。
 
 ```powershell
-python skill\visio-template-drawing\scripts\validate_plan_layout.py `
-  skill\visio-template-drawing\examples\case-09-eight-pages.json
-
 powershell -NoProfile -STA -File skill\visio-template-drawing\scripts\test_visio_lifecycle.ps1 `
-  -OutputDirectory .\outputs\acceptance-new -IncludeVisible
-
+  -OutputDirectory .\outputs\本轮流程验收 -IncludeVisible
 powershell -NoProfile -STA -File skill\visio-template-drawing\scripts\test_visio_interruptions.ps1 `
-  -OutputDirectory .\outputs\interruptions-new
+  -OutputDirectory .\outputs\本轮中断验收
 ```
 
-每次测试使用新的输出目录。`-IncludeVisible` 会显示受控测试窗口；测试不拿用户真实未保存文档冒险。真实并行输入和复制粘贴仍需单独人工验证，不能由语法或布局检查代替。
+测试输出和日志仅保存在本地。后台绘制期间的真实鼠标、键盘和剪贴板使用，需要人工并行操作验收，不能用静态检查代替。
 
-可发布技能源码位于 `skill/visio-template-drawing/`。本地日志、一次性诊断、会话和生成的图册不纳入发布，发布前检查见 [PUBLISHING.md](PUBLISHING.md)。
+## 更新说明：2026-09-21
 
-## License
+- 为绘图、图册、导出和探测统一了实例归属、文档登记、原始错误记录、COM 引用释放和退出核验。
+- 增加无需剪贴板的多页方案、可选模板、独立的显示与保留选项、取消、超时监护及限定范围的遗留恢复。
+- 已在 Visio 16 和 Windows PowerShell 5.1 STA 环境完成验收；PowerShell 7.6 启动入口也已通过。
+- 实测覆盖连续两轮单页及八页绘图、原生对象编辑和连接粘附、真实保存与导出失败、已有未保存文档隔离、窗口显示与保留、文件锁、取消、工作进程及启动进程被终止、超时。其他软件的并行操作已由用户参与确认。
+- 尚未验证的范围包括 PowerShell 7 直接执行完整 COM 工作流、机器断电，以及所有第三方加载项和模态弹窗故障。任意已有 VSDX 页面导入及跨页连接不在当前支持范围内。
 
-MIT，见 [LICENSE](LICENSE)。
+## 公开范围
+
+公开技能以 `skill/visio-template-drawing/` 和本说明为准。本地测试输出、一次性调试脚本、生成预览、会话记录及私人材料不纳入发布。
+
+## 许可证
+
+采用 MIT 许可证，详见 [LICENSE](LICENSE)。
